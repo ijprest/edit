@@ -99,6 +99,10 @@ fn draw_menu_edit(ctx: &mut Context, state: &mut State) {
         tb.select_all();
         ctx.needs_rerender();
     }
+    if ctx.menubar_menu_button(loc(LocId::EditRewrap), 'W', kbmod::ALT | vk::Q) {
+        drop(tb);
+        state.wants_rewrap = true;
+    }
     ctx.menubar_menu_end();
 }
 
@@ -131,6 +135,36 @@ fn draw_menu_help(ctx: &mut Context, state: &mut State) {
         state.wants_about = true;
     }
     ctx.menubar_menu_end();
+}
+
+pub fn draw_dialog_rewrap(ctx: &mut Context, state: &mut State) {
+    ctx.modal_begin("rewrap", loc(LocId::EditRewrap));
+    {
+        ctx.block_begin("content");
+        ctx.inherit_focus();
+        ctx.attr_padding(Rect::three(1, 2, 1));
+        {
+            ctx.label("description", "Rewrap Text (not yet implemented)");
+            ctx.attr_overflow(Overflow::TruncateTail);
+            ctx.attr_position(Position::Center);
+
+            ctx.block_begin("choices");
+            ctx.inherit_focus();
+            ctx.attr_padding(Rect::three(1, 2, 0));
+            ctx.attr_position(Position::Center);
+            {
+                if ctx.button("ok", loc(LocId::Ok), ButtonStyle::default()) {
+                    state.wants_rewrap = false;
+                }
+                ctx.inherit_focus();
+            }
+            ctx.block_end();
+        }
+        ctx.block_end();
+    }
+    if ctx.modal_end() {
+        state.wants_rewrap = false;
+    }
 }
 
 pub fn draw_dialog_about(ctx: &mut Context, state: &mut State) {

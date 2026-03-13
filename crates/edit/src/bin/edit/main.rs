@@ -334,6 +334,9 @@ fn draw(ctx: &mut Context, state: &mut State) {
     if state.wants_about {
         draw_dialog_about(ctx, state);
     }
+    if state.wants_rewrap {
+        draw_dialog_rewrap(ctx, state);
+    }
     if ctx.clipboard_ref().wants_host_sync() {
         draw_handle_clipboard_change(ctx, state);
     }
@@ -358,6 +361,8 @@ fn draw(ctx: &mut Context, state: &mut State) {
             state.wants_go_to_file = true;
         } else if key == kbmod::CTRL | vk::Q {
             state.wants_exit = true;
+        } else if key == kbmod::ALT | vk::Q {
+            state.wants_rewrap = true;
         } else if key == kbmod::CTRL | vk::G {
             state.wants_goto = true;
         } else if key == kbmod::CTRL | vk::F && state.wants_search.kind != StateSearchKind::Disabled

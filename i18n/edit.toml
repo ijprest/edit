@@ -773,6 +773,10 @@ vi = "Chọn tất cả"
 zh_hans = "全选"
 zh_hant = "全選"
 
+# A menu bar item: Edit > Rewrap Text
+[EditRewrap]
+en = "Rewrap Text"
+
 # A menu bar item
 [View]
 en = "View"
