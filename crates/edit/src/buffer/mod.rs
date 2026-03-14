@@ -599,6 +599,11 @@ impl TextBuffer {
         self.line_highlight_enabled = enabled;
     }
 
+    /// Returns the ruler column, or 0 if no ruler is set.
+    pub fn ruler(&self) -> CoordType {
+        self.ruler
+    }
+
     /// Sets a ruler column, e.g. 80.
     pub fn set_ruler(&mut self, column: CoordType) {
         self.ruler = column;

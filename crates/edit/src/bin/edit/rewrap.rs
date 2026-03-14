@@ -371,7 +371,8 @@ pub fn execute(ctx: &mut Context, state: &mut State) {
     };
     let mut tb = doc.buffer.borrow_mut();
     let tab_width = tb.tab_size() as usize;
-    let max_width = DEFAULT_WRAP_COLUMN;
+    let ruler = tb.ruler() as usize;
+    let max_width = if ruler > 0 { ruler } else { DEFAULT_WRAP_COLUMN };
     let line_count = tb.logical_line_count();
 
     // Determine file extension for comment marker detection.
