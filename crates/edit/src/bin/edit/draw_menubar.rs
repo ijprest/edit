@@ -164,6 +164,10 @@ pub fn draw_dialog_about(ctx: &mut Context, state: &mut State) {
             ctx.attr_overflow(Overflow::TruncateTail);
             ctx.attr_position(Position::Center);
 
+            ctx.label("modifications", "with modifications by ijprest");
+            ctx.attr_overflow(Overflow::TruncateTail);
+            ctx.attr_position(Position::Center);
+
             ctx.block_begin("choices");
             ctx.inherit_focus();
             ctx.attr_padding(Rect::three(1, 2, 0));
