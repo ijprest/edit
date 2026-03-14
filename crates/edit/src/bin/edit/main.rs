@@ -361,6 +361,12 @@ fn draw(ctx: &mut Context, state: &mut State) {
             state.wants_exit = true;
         } else if key == kbmod::ALT | vk::Q {
             rewrap::execute(ctx, state);
+        } else if key == kbmod::ALT_SHIFT | vk::Q {
+            if let Some(doc) = state.documents.active() {
+                let mut tb = doc.buffer.borrow_mut();
+                let col = tb.cursor_logical_pos().x + 1;
+                tb.set_ruler(col);
+            }
         } else if key == kbmod::CTRL | vk::G {
             state.wants_goto = true;
         } else if key == kbmod::CTRL | vk::F && state.wants_search.kind != StateSearchKind::Disabled

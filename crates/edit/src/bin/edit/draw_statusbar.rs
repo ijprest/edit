@@ -149,6 +149,69 @@ pub fn draw_statusbar(ctx: &mut Context, state: &mut State) {
             }
         }
 
+        {
+            let ruler = tb.ruler();
+            let ruler_label = if ruler > 0 {
+                arena_format!(ctx.arena(), "{}:{}", loc(LocId::RulerColumn), ruler)
+            } else {
+                arena_format!(ctx.arena(), "{}:--", loc(LocId::RulerColumn))
+            };
+            state.wants_ruler_picker |= ctx.button("ruler", &ruler_label, ButtonStyle::default());
+        }
+        if state.wants_ruler_picker {
+            ctx.block_begin("ruler-picker");
+            ctx.attr_float(FloatSpec {
+                anchor: Anchor::Last,
+                gravity_x: 0.0,
+                gravity_y: 1.0,
+                offset_x: 0.0,
+                offset_y: 0.0,
+            });
+            ctx.attr_border();
+            ctx.attr_padding(Rect::two(0, 1));
+            {
+                if ctx.editline("ruler-input", &mut state.ruler_target) {
+                    state.ruler_invalid = false;
+                }
+                if state.ruler_invalid {
+                    ctx.attr_background_rgba(ctx.indexed(IndexedColor::Red));
+                    ctx.attr_foreground_rgba(ctx.indexed(IndexedColor::BrightWhite));
+                }
+                ctx.attr_intrinsic_size(Size { width: 16, height: 1 });
+                ctx.steal_focus();
+
+                if ctx.consume_shortcut(vk::RETURN) {
+                    let trimmed = state.ruler_target.trim();
+                    if trimmed.is_empty() || trimmed == "0" || trimmed == "--" {
+                        tb.set_ruler(0);
+                        state.wants_ruler_picker = false;
+                        state.ruler_target.clear();
+                        state.ruler_invalid = false;
+                    } else if let Ok(col) = trimmed.parse::<CoordType>() {
+                        if col >= 1 {
+                            tb.set_ruler(col);
+                            state.wants_ruler_picker = false;
+                            state.ruler_target.clear();
+                            state.ruler_invalid = false;
+                        } else {
+                            state.ruler_invalid = true;
+                        }
+                    } else {
+                        state.ruler_invalid = true;
+                    }
+                    ctx.needs_rerender();
+                }
+            }
+            ctx.block_end();
+
+            if !ctx.contains_focus() {
+                state.wants_ruler_picker = false;
+                state.ruler_target.clear();
+                state.ruler_invalid = false;
+                ctx.needs_rerender();
+            }
+        }
+
         ctx.label(
             "location",
             &arena_format!(
@@ -196,6 +259,7 @@ pub fn draw_statusbar(ctx: &mut Context, state: &mut State) {
         state.wants_statusbar_focus = false;
         state.wants_encoding_picker = false;
         state.wants_indentation_picker = false;
+        state.wants_ruler_picker = false;
     }
 
     ctx.table_end();

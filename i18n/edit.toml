@@ -1801,6 +1801,10 @@ vi = "Dấu cách"
 zh_hans = "空格"
 zh_hant = "空格"
 
+# Statusbar label for the ruler/wrap column
+[RulerColumn]
+en = "Col"
+
 [SaveAsDialogPathLabel]
 en = "Folder:"
 ar = "المجلد:"
