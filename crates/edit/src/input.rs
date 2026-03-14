@@ -378,6 +378,13 @@ impl<'input> Iterator for Stream<'_, '_, 'input> {
                                 ));
                             }
                         }
+                        // Modified F1-F4: CSI 1;modifier P/Q/R/S
+                        'P'..='S' => {
+                            let key = vk::F1.value() + csi.final_byte as u32 - 'P' as u32;
+                            return Some(Input::Keyboard(
+                                InputKey::new(key) | Self::parse_modifiers(csi),
+                            ));
+                        }
                         'Z' => return Some(Input::Keyboard(kbmod::SHIFT | vk::TAB)),
                         '~' => {
                             const LUT: [u8; 35] = [
@@ -392,10 +399,10 @@ impl<'input> Iterator for Stream<'_, '_, 'input> {
                                 0,
                                 0,
                                 0,
-                                0,
-                                0,
-                                0,
-                                0,
+                                vk::F1.value() as u8, // 11
+                                vk::F2.value() as u8, // 12
+                                vk::F3.value() as u8, // 13
+                                vk::F4.value() as u8, // 14
                                 vk::F5.value() as u8, // 15
                                 0,
                                 vk::F6.value() as u8,  // 17

@@ -377,6 +377,20 @@ fn draw(ctx: &mut Context, state: &mut State) {
         {
             state.wants_search.kind = StateSearchKind::Replace;
             state.wants_search.focus = true;
+        } else if key == kbmod::CTRL | vk::F3 {
+            if let Some(doc) = state.documents.active() {
+                let mut tb = doc.buffer.borrow_mut();
+                tb.select_word();
+                if let Some(word) = tb.extract_user_selection(false) {
+                    if let Ok(word_str) = String::from_utf8(word) {
+                        if !word_str.is_empty() {
+                            state.search_needle = word_str;
+                            drop(tb);
+                            search_execute(ctx, state, SearchAction::Search);
+                        }
+                    }
+                }
+            }
         } else if key == vk::F3 {
             search_execute(ctx, state, SearchAction::Search);
         } else {
