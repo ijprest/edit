@@ -2093,6 +2093,14 @@ impl<'a> Context<'a, '_> {
         self.textarea_internal(classname, TextBufferPayload::Editline(text))
     }
 
+    /// Selects all text in the most recently created editline/textarea.
+    pub fn editline_select_all(&mut self) {
+        let node = self.tree.last_node.borrow();
+        if let NodeContent::Textarea(ref content) = node.content {
+            content.buffer.borrow_mut().select_all();
+        }
+    }
+
     /// Creates a text area.
     pub fn textarea(&mut self, classname: &'static str, tb: RcTextBuffer) {
         self.textarea_internal(classname, TextBufferPayload::Textarea(tb));

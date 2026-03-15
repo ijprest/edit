@@ -149,6 +149,7 @@ pub fn draw_statusbar(ctx: &mut Context, state: &mut State) {
             }
         }
 
+        let ruler_picker_just_opened;
         {
             let ruler = tb.ruler();
             let ruler_label = if ruler > 0 {
@@ -156,7 +157,18 @@ pub fn draw_statusbar(ctx: &mut Context, state: &mut State) {
             } else {
                 arena_format!(ctx.arena(), "{}:--", loc(LocId::RulerColumn))
             };
-            state.wants_ruler_picker |= ctx.button("ruler", &ruler_label, ButtonStyle::default());
+            let was_open = state.wants_ruler_picker;
+            state.wants_ruler_picker |=
+                ctx.button("ruler", &ruler_label, ButtonStyle::default());
+            ruler_picker_just_opened = !was_open && state.wants_ruler_picker;
+            if ruler_picker_just_opened {
+                state.ruler_target = if ruler > 0 {
+                    format!("{}", ruler)
+                } else {
+                    String::new()
+                };
+                state.ruler_invalid = false;
+            }
         }
         if state.wants_ruler_picker {
             ctx.block_begin("ruler-picker");
@@ -170,8 +182,13 @@ pub fn draw_statusbar(ctx: &mut Context, state: &mut State) {
             ctx.attr_border();
             ctx.attr_padding(Rect::two(0, 1));
             {
+                let esc_pressed = ctx.consume_shortcut(vk::ESCAPE);
+
                 if ctx.editline("ruler-input", &mut state.ruler_target) {
                     state.ruler_invalid = false;
+                }
+                if ruler_picker_just_opened {
+                    ctx.editline_select_all();
                 }
                 if state.ruler_invalid {
                     ctx.attr_background_rgba(ctx.indexed(IndexedColor::Red));
@@ -180,7 +197,12 @@ pub fn draw_statusbar(ctx: &mut Context, state: &mut State) {
                 ctx.attr_intrinsic_size(Size { width: 16, height: 1 });
                 ctx.steal_focus();
 
-                if ctx.consume_shortcut(vk::RETURN) {
+                if esc_pressed {
+                    state.wants_ruler_picker = false;
+                    state.ruler_target.clear();
+                    state.ruler_invalid = false;
+                    ctx.needs_rerender();
+                } else if ctx.consume_shortcut(vk::RETURN) {
                     let trimmed = state.ruler_target.trim();
                     if trimmed.is_empty() || trimmed == "0" || trimmed == "--" {
                         tb.set_ruler(0);
