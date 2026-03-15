@@ -87,12 +87,9 @@ impl Parser {
     /// is just the result of the user literally pressing the Escape key.
     pub fn read_timeout(&mut self) -> std::time::Duration {
         match self.state {
-            // 100ms is a upper ceiling for a responsive feel.
-            // Realistically though, this could be much lower.
-            //
-            // However, there seems to be issues with OpenSSH on Windows.
-            // See: https://github.com/PowerShell/Win32-OpenSSH/issues/2275
-            State::Esc => time::Duration::from_millis(100),
+            // Real VT sequences arrive as a batch (microseconds apart),
+            // so 10ms is plenty to distinguish them from a literal ESC keypress.
+            State::Esc => time::Duration::from_millis(10),
             _ => time::Duration::MAX,
         }
     }
